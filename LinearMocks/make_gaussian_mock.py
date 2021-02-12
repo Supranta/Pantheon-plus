@@ -76,7 +76,7 @@ def get_pos(delta_g, nbar, N_SIDE, l):
     Z = Z + np.random.uniform(-0.5*l, 0.5*l, size=len(Z))
     return X, Y, Z
 
-X, Y, Z = get_pos(delta_g, 0.01, N_SIDE, l)
+X, Y, Z = get_pos(delta_g, 0.005, N_SIDE, l)
 
 def get_v_interp(X_grid, Y_grid, Z_grid, V):
     v_x_data, v_y_data, v_z_data = V
@@ -142,8 +142,14 @@ mu_obs  = mu_true + sigma_int * np.random.normal(size=len(mu_true))
 app_mag = M + mu_obs
 
 select_R = (app_mag < 17.)
+N_OBJ = np.sum(select_R)
 
-print("Total number of objects: %d" %(np.sum(select_R)))
+mu_cov = np.diag(0.21 * sigma_int**2 * np.ones(N_OBJ))
+mu_offset = np.random.multivariate_normal(mean=np.zeros(N_OBJ), cov=mu_cov)
+print("mu_cov.shape: "+str(mu_cov.shape))
+np.save(savedir+'/mu_cov.npy',mu_cov)
+
+print("Total number of objects: %d" %(N_OBJ))
 
 z_cos_arr = z_cos(r_hMpc, OmegaM)
 z_obs = (1. + z_cos_arr)*(1. + Vr / speed_of_light) - 1.
@@ -155,7 +161,7 @@ print("Max-min of DEC: %2.3f, %2.f"%(np.min(DEC), np.max(DEC)))
 df = pd.DataFrame()
 
 df['zCMB'] = z_obs[select_R]
-df['mu']   = mu_obs[select_R]
+df['mu']   = mu_obs[select_R] + mu_offset
 df['e_mu'] = sigma_int
 df['RA']   = RA[select_R]
 df['DEC']  = DEC[select_R]
