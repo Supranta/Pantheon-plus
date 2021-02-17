@@ -138,15 +138,15 @@ mu_true = r2mu(dL)
 
 M = -18.
 sigma_int = 0.1
-mu_obs  = mu_true + np.sqrt(2) * sigma_int * np.random.normal(size=len(mu_true))
+mu_obs  = mu_true + sigma_int * np.random.normal(size=len(mu_true))
 app_mag = M + mu_obs
 
 select_R = (app_mag < 17.)
 N_OBJ = np.sum(select_R)
 
-mu_cov = np.diag(sigma_int**2 * np.ones(N_OBJ))
-print("mu_cov.shape: "+str(mu_cov.shape))
-np.save(savedir+'/mu_cov.npy',mu_cov)
+#mu_cov = np.diag(sigma_int**2 * np.ones(N_OBJ))
+#print("mu_cov.shape: "+str(mu_cov.shape))
+#np.save(savedir+'/mu_cov.npy',mu_cov)
 
 print("Total number of objects: %d" %(N_OBJ))
 
