@@ -138,14 +138,13 @@ mu_true = r2mu(dL)
 
 M = -18.
 sigma_int = 0.1
-mu_obs  = mu_true + sigma_int * np.random.normal(size=len(mu_true))
+mu_obs  = mu_true + np.sqrt(2) * sigma_int * np.random.normal(size=len(mu_true))
 app_mag = M + mu_obs
 
 select_R = (app_mag < 17.)
 N_OBJ = np.sum(select_R)
 
-mu_cov = np.diag(0.21 * sigma_int**2 * np.ones(N_OBJ))
-mu_offset = np.random.multivariate_normal(mean=np.zeros(N_OBJ), cov=mu_cov)
+mu_cov = np.diag(sigma_int**2 * np.ones(N_OBJ))
 print("mu_cov.shape: "+str(mu_cov.shape))
 np.save(savedir+'/mu_cov.npy',mu_cov)
 
@@ -161,7 +160,7 @@ print("Max-min of DEC: %2.3f, %2.f"%(np.min(DEC), np.max(DEC)))
 df = pd.DataFrame()
 
 df['zCMB'] = z_obs[select_R]
-df['mu']   = mu_obs[select_R] + mu_offset
+df['mu']   = mu_obs[select_R]
 df['e_mu'] = sigma_int
 df['RA']   = RA[select_R]
 df['DEC']  = DEC[select_R]
