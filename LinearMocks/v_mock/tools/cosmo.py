@@ -1,8 +1,13 @@
 import numpy as np
+import astropy.units as u
+from astropy.coordinates import SkyCoord
 import camb
 from camb import model, initialpower
 
 speed_of_light = 299792
+coord = SkyCoord(l=264.021*u.deg, b=48.253*u.deg, frame='galactic')
+v_sun_r_hat = np.array(coord.icrs.cartesian.xyz).reshape((-1,1))
+V_sun = 369.82
 
 def z_cos(r_hMpc, Omega_m):
     Omega_L = 1. - Omega_m
@@ -18,6 +23,14 @@ def r2mu(r):
 
 def mu2r(mu):
     return 10**((mu - 25.)/5.)
+
+def zCMB2zhelio(zCMB, RA, DEC):
+    """
+    See e.g, 1812.05135. V_sun taken from 1807.06205
+    """
+    r_hat = np.array(SkyCoord(ra=RA*u.deg, dec=DEC*u.deg).cartesian.xyz)
+    z_sun = V_sun / speed_of_light * np.sum(r_hat * v_sun_r_hat, axis=0)
+    return (zCMB - z_sun)/(1. + z_sun)
 
 def camb_PS():
     print("Calculating CAMB power spectrum....")

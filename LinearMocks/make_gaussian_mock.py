@@ -4,7 +4,7 @@ import h5py as h5
 import pandas as pd
 
 from v_mock import VelocityBox
-from v_mock.tools.cosmo import z_cos, r2dL, r2mu, speed_of_light, camb_PS
+from v_mock.tools.cosmo import z_cos, r2dL, r2mu, zCMB2zhelio, speed_of_light, camb_PS
 
 from scipy.interpolate import RegularGridInterpolator
 
@@ -151,7 +151,8 @@ np.save(savedir+'/mu_cov.npy',mu_cov)
 print("Total number of objects: %d" %(N_OBJ))
 
 z_cos_arr = z_cos(r_hMpc, OmegaM)
-z_obs = (1. + z_cos_arr)*(1. + Vr / speed_of_light) - 1.
+z_CMB = (1. + z_cos_arr)*(1. + Vr / speed_of_light) - 1.
+z_helio = zCMB2zhelio(z_CMB, RA, DEC)
 
 print("Max-min of r_hMpc: %2.3f, %2.3f"%(np.min(r_hMpc[select_R]), np.max(r_hMpc[select_R])))
 print("Max-min of RA: %2.3f, %2.3f"%(np.min(RA), np.max(RA)))
@@ -159,10 +160,11 @@ print("Max-min of DEC: %2.3f, %2.f"%(np.min(DEC), np.max(DEC)))
 
 df = pd.DataFrame()
 
-df['zCMB'] = z_obs[select_R]
-df['mu']   = mu_obs[select_R]
-df['e_mu'] = sigma_int
-df['RA']   = RA[select_R]
-df['DEC']  = DEC[select_R]
+df['zCMB']   = z_CMB[select_R]
+df['zhelio'] = z_helio[select_R]
+df['mu']     = mu_obs[select_R]
+df['e_mu']   = sigma_int
+df['RA']     = RA[select_R]
+df['DEC']    = DEC[select_R]
 
 df.to_csv(savedir+'/mock_PV_catalog.csv')
