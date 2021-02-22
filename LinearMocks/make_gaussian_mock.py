@@ -160,11 +160,13 @@ print("Max-min of DEC: %2.3f, %2.f"%(np.min(DEC), np.max(DEC)))
 
 df = pd.DataFrame()
 
-df['zCMB']   = z_CMB[select_R]
-df['zhelio'] = z_helio[select_R]
-df['mu']     = mu_obs[select_R]
-df['e_mu']   = sigma_int
-df['RA']     = RA[select_R]
-df['DEC']    = DEC[select_R]
+df['zCMB']            = z_CMB[select_R]
+df['zhelio']          = z_helio[select_R]
+df['Vr_true']         = Vr_halos[select_R]
+df['Vr_w_sigv_noise'] = Vr[select_R]
+df['mu']              = mu_obs[select_R]
+df['e_mu']            = sigma_int
+df['RA']              = RA[select_R]
+df['DEC']             = DEC[select_R]
 
 df.to_csv(savedir+'/mock_PV_catalog.csv')
