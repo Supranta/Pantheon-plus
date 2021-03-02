@@ -8,7 +8,7 @@ from v_mock.tools.cosmo import z_cos, r2dL, r2mu, zCMB2zhelio, speed_of_light, c
 
 from scipy.interpolate import RegularGridInterpolator
 
-savedir = '../ForwardLikelihood/data/linear_mocks/mock/'
+savedir = '../fwd_lkl_hmc/ForwardLikelihood/data/linear_mocks/mock_snana/'
 
 N_SIDE = 128
 L_BOX = 400.
@@ -133,39 +133,43 @@ r_hMpc = np.array(coord[0])
 DEC = np.array(coord[1].deg)
 RA  = np.array(coord[2].deg)
 
-dL = r2dL(r_hMpc, OmegaM)
-mu_true = r2mu(dL)
+# dL = r2dL(r_hMpc, OmegaM)
+# mu_true = r2mu(dL)
+#
+# M = -18.
+# sigma_int = 0.1
+# mu_obs  = mu_true + sigma_int * np.random.normal(size=len(mu_true))
+# app_mag = M + mu_obs
+#
+# select_R = (app_mag < 17.)
+# N_OBJ = np.sum(select_R)
+N_OBJ = len(RA)
 
-M = -18.
-sigma_int = 0.1
-mu_obs  = mu_true + sigma_int * np.random.normal(size=len(mu_true))
-app_mag = M + mu_obs
-
-select_R = (app_mag < 17.)
-N_OBJ = np.sum(select_R)
-
-#mu_cov = np.diag(sigma_int**2 * np.ones(N_OBJ))
-#print("mu_cov.shape: "+str(mu_cov.shape))
-#np.save(savedir+'/mu_cov.npy',mu_cov)
+# mu_cov = np.diag(0.44 * sigma_int**2 * np.ones(N_OBJ))
+# print("mu_cov.shape: "+str(mu_cov.shape))
+# np.save(savedir+'/mu_cov.npy',mu_cov)
 
 print("Total number of objects: %d" %(N_OBJ))
 
 z_cos_arr = z_cos(r_hMpc, OmegaM)
 z_CMB = (1. + z_cos_arr)*(1. + Vr / speed_of_light) - 1.
 z_helio = zCMB2zhelio(z_CMB, RA, DEC)
+z_cos_helio = zCMB2zhelio(z_cos_arr, RA, DEC)
 
-print("Max-min of r_hMpc: %2.3f, %2.3f"%(np.min(r_hMpc[select_R]), np.max(r_hMpc[select_R])))
+print("Max-min of r_hMpc: %2.3f, %2.3f"%(np.min(r_hMpc), np.max(r_hMpc)))
 print("Max-min of RA: %2.3f, %2.3f"%(np.min(RA), np.max(RA)))
 print("Max-min of DEC: %2.3f, %2.f"%(np.min(DEC), np.max(DEC)))
 
 df = pd.DataFrame()
 
-df['zCMB']    = z_CMB[select_R]
-df['zhelio']  = z_helio[select_R]
-df['Vr_true'] = Vr[select_R]
-df['mu']      = mu_obs[select_R]
-df['e_mu']    = sigma_int
-df['RA']      = RA[select_R]
-df['DEC']     = DEC[select_R]
+df['z_cos_CMB']   = z_cos_arr
+df['z_cos_helio'] = z_cos_helio
+df['zCMB_w_V']    = z_CMB
+df['zhelio_w_V']  = z_helio
+df['Vr_true']     = Vr
+# df['mu']          = mu_obs
+# df['e_mu']        = sigma_int
+df['RA']          = RA
+df['DEC']         = DEC
 
 df.to_csv(savedir+'/mock_PV_catalog.csv')
